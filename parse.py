@@ -1,4 +1,11 @@
 import json
+f = open("wordbank\\adverbs\\adverbs.txt")
+lines = f.read().splitlines()
+f.close()
+
+indexes = open("wordbank\\adverbs\\index.json")
+letter_index = json.loads(indexes.read())
+indexes.close()
 
 def interpret(sentance):
     words = sentance.split()
@@ -28,11 +35,11 @@ def isverb(word):
     result = False
     first_letter = word[:1].lower()
 
-    f = open("wordbank/verbs/verbs.txt")
+    f = open("wordbank\\verbs\\verbs.txt")
     lines = f.read().splitlines()
     f.close()
 
-    indexes = open("wordbank/verbs/index.json")
+    indexes = open("wordbank\\verbs\\index.json")
     letter_index = json.loads(indexes.read())
     indexes.close()
 
@@ -49,14 +56,6 @@ def isverb(word):
 def isadverb(word):
     result = False
     first_letter = word[:1].lower()
-
-    f = open("wordbank/adverbs/adverbs.txt")
-    lines = f.read().splitlines()
-    f.close()
-
-    indexes = open("wordbank/adverbs/index.json")
-    letter_index = json.loads(indexes.read())
-    indexes.close()
 
     look  = letter_index[first_letter]
     for item in lines[look:]:

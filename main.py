@@ -1,4 +1,3 @@
-## @main.py
 import sys
 import parse
 def main():
