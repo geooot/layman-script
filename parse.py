@@ -1,11 +1,21 @@
 import json
-f = open("wordbank\\adverbs\\adverbs.txt")
+import os
+
+f = open("wordbank"+ os.sep + "adverbs" + os.sep + "adverbs.txt")
 lines = f.read().splitlines()
 f.close()
 
-indexes = open("wordbank\\adverbs\\index.json")
+indexes = open("wordbank"+ os.sep + "adverbs"+ os.sep + "index.json")
 letter_index = json.loads(indexes.read())
 indexes.close()
+
+fVerb = open("wordbank"+ os.sep + "verbs" + os.sep + "verbs.txt")
+f_lines = fVerb.read().splitlines()
+fVerb.close()
+
+f_indexes = open("wordbank"+ os.sep + "verbs"+ os.sep + "index.json")
+f_letter_index = json.loads(f_indexes.read())
+f_indexes.close()
 
 def interpret(sentance):
     words = sentance.split()
@@ -31,21 +41,23 @@ def interpret(sentance):
             types.append("")
     print(types)
 
+    # Assigning verbs to specific nouns
+    count = 0
+    assigners = []
+    subject = ""
+    for t in types:
+        if t == 'verb':
+            subject = words[count-1]
+            break
+        count = count + 1
+    print(subject)
+
 def isverb(word):
     result = False
     first_letter = word[:1].lower()
-
-    f = open("wordbank\\verbs\\verbs.txt")
-    lines = f.read().splitlines()
-    f.close()
-
-    indexes = open("wordbank\\verbs\\index.json")
-    letter_index = json.loads(indexes.read())
-    indexes.close()
-
-    look  = letter_index[first_letter]
-    for item in lines[look:]:
-        if item.lower() in word:
+    look  = f_letter_index[first_letter]
+    for item in f_lines[look:]:
+        if word == item.lower():
             result = True
             break
         if item[:1].lower() != first_letter:
