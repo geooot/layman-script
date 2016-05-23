@@ -17,8 +17,9 @@ f_indexes = open("wordbank"+ os.sep + "verbs"+ os.sep + "index.json")
 f_letter_index = json.loads(f_indexes.read())
 f_indexes.close()
 def indexOf(arr,term):
-    for index, item in enumerate(arr):
-        if item == term or item == (arr[index] + " " arr[index + 1]):
+    for index, item in enumerate(arr[:len(arr) - 2]):
+        tmp = arr[index] + " " + arr[index + 1]
+        if item == term or term == tmp:
             return index
 
 def interpret(sentance):
