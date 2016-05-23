@@ -73,6 +73,8 @@ def interpret(sentance):
         print(i)
         if types[i] == "":
             final_subjects.append(w)
+
+    print(final_subjects)
 def isverb(word):
     result = False
     first_letter = word[:1].lower()
