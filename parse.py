@@ -16,6 +16,11 @@ fVerb.close()
 f_indexes = open("wordbank"+ os.sep + "verbs"+ os.sep + "index.json")
 f_letter_index = json.loads(f_indexes.read())
 f_indexes.close()
+def indexOf(arr,term):
+    for index, item in enumerate(arr):
+        if item == term or item == (arr[index] + " " arr[index + 1]):
+            return index
+
 def interpret(sentance):
     words = sentance.split()
     isQuestion = False
@@ -54,15 +59,17 @@ def interpret(sentance):
             if types[count-1] != "":
                 types[count] = ""
             else:
-                possible_subjects.append(words[count-1])
+                possible_subjects.append(findSubject(words,types,count-1))
+                ## possible_subjects.append(words[count-1])
             if types[count-2] == 'and_conj':
-                possible_subjects.append(words[count-3])
+                possible_subjects.append(findSubject(words,types,count-3))
         count = count + 1
     print(types)
     print(possible_subjects)
 
     for w in possible_subjects:
-        i = words.index(w)
+        i = indexOf(words,w)
+        print(i)
         if types[i] == "":
             final_subjects.append(w)
 def isverb(word):
@@ -99,3 +106,18 @@ def isadverb(word):
             break
 
     return result
+
+def findSubject(wordArr, typesArr, index):
+    count = index
+    subject = ""
+    while count >= 0:
+        sp = " "
+        if typesArr[count] == "":
+            if subject == "":
+                sp = ""
+            subject = wordArr[count] + sp + subject 
+        else:
+            break
+        count = count -1
+    return subject
+
