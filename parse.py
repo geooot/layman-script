@@ -17,10 +17,11 @@ f_indexes = open("wordbank"+ os.sep + "verbs"+ os.sep + "index.json")
 f_letter_index = json.loads(f_indexes.read())
 f_indexes.close()
 def indexOf(arr,term):
-    for index, item in enumerate(arr[:len(arr) - 2]):
+    for index, item in enumerate(arr[:len(arr) - 1]):
         tmp = arr[index] + " " + arr[index + 1]
         if item == term or term == tmp:
             return index
+    return 0
 
 def interpret(sentance):
     words = sentance.split()
@@ -65,9 +66,10 @@ def interpret(sentance):
             if types[count-2] == 'and_conj':
                 possible_subjects.append(findSubject(words,types,count-3))
         count = count + 1
-    print(types)
-    print(possible_subjects)
 
+    print(types)
+    print("words:", words)
+    print("possible:",possible_subjects)
     for w in possible_subjects:
         i = indexOf(words,w)
         print(i)
@@ -80,7 +82,7 @@ def isverb(word):
     first_letter = word[:1].lower()
     look  = f_letter_index[first_letter]
     for item in f_lines[look:]:
-        if word == item.lower():
+        if word == item.lower() or word == (item.lower() + "ed"):
             result = True
             break
         if item[:1].lower() != first_letter:
@@ -109,13 +111,13 @@ def isadverb(word):
             break
 
     return result
-
+//TODO FIX PLS
 def findSubject(wordArr, typesArr, index):
     count = index
     subject = ""
     while count >= 0:
         sp = " "
-        if typesArr[count] == "":
+        if typesArr[count] == "" or "," not in wordArr[count]:
             if subject == "":
                 sp = ""
             subject = wordArr[count] + sp + subject 
