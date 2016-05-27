@@ -58,13 +58,29 @@ def interpret(sentance):
     final_subjects = []
     for t in types:
         if t == 'verb' and words[count-1] != "to":
+            # ['george,', 'bill,', 'and', 'bob', 'likes', 'pie']
             if types[count-1] != "":
-                types[count] = ""
+                types[count] = "" 
+                print("nullifying: " + words[count])  
             else:
-                possible_subjects.append(findSubject(words,types,count-1))
-                ## possible_subjects.append(words[count-1])
-            if types[count-2] == 'and_conj':
-                possible_subjects.append(findSubject(words,types,count-3))
+                tmp = words[:count]
+                print(t + " "  + words[count],tmp)
+                for wr in tmp:
+                    m = wr.replace(",","")
+
+            # if types[count-1] != "" and types[count-1] != "and_conj":
+            #     types[count] = ""
+            # else:
+            #     print("else:",findSubject(words,types,count-1))
+            #     possible_subjects.append(findSubject(words,types,count-1))
+            #     ## possible_subjects.append(words[count-1])
+            # if types[count-2] == 'and_conj':
+            #     possible_subjects.append(findSubject(words,types,count-3))
+            # elif "," in words[count-3]:
+            #     print("count-3:",words[count-3])
+            #     tmp = words[count-3].replace(",","").split()
+            #     for t in tmp:
+            #         possible_subjects.append(t)
         count = count + 1
 
     print(types)
@@ -72,7 +88,6 @@ def interpret(sentance):
     print("possible:",possible_subjects)
     for w in possible_subjects:
         i = indexOf(words,w)
-        print(i)
         if types[i] == "":
             final_subjects.append(w)
 
@@ -111,13 +126,13 @@ def isadverb(word):
             break
 
     return result
-//TODO FIX PLS
+##TODO FIX PLS
 def findSubject(wordArr, typesArr, index):
     count = index
     subject = ""
     while count >= 0:
         sp = " "
-        if typesArr[count] == "" or "," not in wordArr[count]:
+        if typesArr[count] == "":
             if subject == "":
                 sp = ""
             subject = wordArr[count] + sp + subject 
