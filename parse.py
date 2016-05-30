@@ -1,6 +1,6 @@
 import json
 import os
-
+shouldPrint = False
 f = open("wordbank"+ os.sep + "adverbs" + os.sep + "adverbs.txt")
 lines = f.read().splitlines()
 f.close()
@@ -21,6 +21,10 @@ fPrep = open("wordbank"+ os.sep + "prepositions" + os.sep + "prepositions.txt")
 arr_of_prep = fPrep.read().splitlines()
 fPrep.close()
 
+fComp = open("wordbank"+ os.sep + "comparators" + os.sep + "comparators.txt")
+arr_of_comp = fComp.read().splitlines()
+fComp.close()
+
 def indexOf(arr,term):
     for index, item in enumerate(arr[:len(arr) - 1]):
         tmp = arr[index] + " " + arr[index + 1]
@@ -30,13 +34,21 @@ def indexOf(arr,term):
 
 def interpret(sentance, memory, m_arr):
     ## check if question or assertion
-    if "?" in sentance.lower() or "who" in sentance.lower() or "what" in sentance.lower() or "when" in sentance.lower() or "why" in sentance.lower():
+    if "?" in sentance.lower() or "who" in sentance.lower() or "what" in sentance.lower() or "when" in sentance.lower() or "why" in sentance.lower() or ("does" in sentance.lower() and sentance.lower().split()[0] == "does"):
         print(interpret_question(sentance.replace("?",""),memory, m_arr))
     else:
         interpret_assertion(sentance.replace(".","").replace("!",""), memory, m_arr)
 
+    if shouldPrint:
+        print("---json")
+        print(json.dumps(memory))
+        print("json---")
+
 def interpret_question(sentance, memory, m_arr):
     # who, what, when, where why
+
+    sentance = sentance.lower()
+    sentance = getPronoun_refrence(memory["recent_subjects"], sentance)
     words = sentance.split()
     types = assign_pos(words)
     types[0] = "asker"
@@ -46,39 +58,85 @@ def interpret_question(sentance, memory, m_arr):
         "verb": "",
         "subject":[]
     }
-    count = 0
+    count = 1
     for t in types[1:]:
-        if t == 'verb' or words[count] == "is" and types[count-1] != "asker":
-            possible_subjects = findSubject(words[1:],types[1:],count,verb_and_subject)
+        if t == 'verb' and words[count] != "does":
+            # print("the verb", words[count])
+            if types[count-1] == "comparator":
+                # print("found comparator")
+                possible_subjects = findSubject(words[1:],types[1:],count-2,verb_and_subject, False)
+            else:
+                possible_subjects = findSubject(words[1:],types[1:],count-1,verb_and_subject, False)
+            break
         elif words[count] == "is" and types[count-1] == "asker":
             findSplit(words[count+1:],possible_subjects)
         count = count + 1
     result = []
-    print(possible_subjects, verb_and_subject, types)
-    if verb_and_subject["subject"] == [""] and verb_and_subject["verb"] != "":
+    # print(verb_and_subject,possible_subjects)
+    if verb_and_subject["subject"] == [""] and "does" in words:
+        # print("who does (subject) like")
         for subject in possible_subjects:
-            for v in memory[subject.replace("does ","")]:
-                if verb_and_subject["verb"] in v:
-                    if question_type == "who":
+            if subject in memory:
+                for v in memory[subject.replace("does ","")]:
+                    if verb_and_subject["verb"] in v:
+                        if question_type == "who":
                             for p in memory[subject][v]:
                                 if p in memory:
                                     result.append(p)
-    elif verb_and_subject["subject"] != [""]:
-        if question_type == "who":
-            for p in memory:
-                if p != "recent_subjects":
-                    for v in memory[p]:
-                        if verb_and_subject["verb"] in v:
-                            for person in verb_and_subject["subject"]:
-                                if person in memory[p][v]:
-                                    result.append(p)
+                        else:
+                            for p in memory[subject][v]:
+                                result.append(p)
+            else:
+                print("ERR: Could not find \"" + subject + "\" in memory. Spelling is important!")
+    elif verb_and_subject["subject"] != [""] and (possible_subjects == [] or possible_subjects == [""]):
+        for p in memory:
+            if p != "recent_subjects":
+                for v in memory[p]:
+                    if verb_and_subject["verb"] in v:
+                        for person in verb_and_subject["subject"]:
+                            if person in memory[p][v]:
+                                result.append(p)       
+
+    elif verb_and_subject["subject"] != [""] and (possible_subjects != [] or possible_subjects != [""]) and "is" not in sentance:
+        for subject in possible_subjects:
+            verb_seg = verb_and_subject["verb"]
+            subject_seg = verb_and_subject["subject"]
+            split_verb_seg = verb_seg.split()
+            r = False
+            if subject in memory:
+                for v in memory[subject]:
+                    if "not" in split_verb_seg:
+                        cur_verb = split_verb_seg[1]
+                        if cur_verb in v:
+                            for item in memory[subject][v]:
+                                for possible_sub in subject_seg:
+                                    if possible_sub not in item:
+                                        r = True
+                                    else:
+                                        r = False
+                    else:
+                        if verb_seg in v:
+                            for item in memory[subject][v]:
+                                for possible_sub in subject_seg:
+                                    if possible_sub in item:
+                                        r = True
+                                    else:
+                                        r = False
+            result.append(r)
     else:
         if question_type == "who":
+            # print("who is")
             for person in possible_subjects:
-                result.append(memory[p])
+                result.append(memory[person])
+        else:
+            for person in possible_subjects:
+                if "is a" in memory[person]:
+                    result.append([subject, memory[person]["is a"]])
+                else:
+                    result.append([subject, None])
 
-
-
+    if shouldPrint:
+        print(types)
     return result
 
 
@@ -90,7 +148,12 @@ def assign_pos(words):
         if isverb(word) and count != 0:
             types.append("verb")
         elif ispreposition(word) and count != 0:
-            types.append("prepostion")
+            if count < len(word) and word == "to" and types[count + 1] == "verb":
+                types.append("infinitive")
+            else:
+                types.append("preposition")
+        elif iscomparator(word) and count != 0:
+            types.append("comparator")
         elif isadverb(word) and count != 0:
             types.append("adverb")
         elif isconnector(word) and count != 0:
@@ -102,10 +165,15 @@ def assign_pos(words):
 
 def interpret_assertion(sentance, memory, m_arr):
     ## loop through sentance and assign pos
+    sentance = sentance.lower()
+    sentance = getPronoun_refrence(memory["recent_subjects"], sentance)
     words = sentance.split()
     types = assign_pos(words)
     count = 0
 
+    mini_c = 0
+    
+    
 
     # finding possible subjects
     count = 0
@@ -118,7 +186,8 @@ def interpret_assertion(sentance, memory, m_arr):
     }
     for t in types:
         if t == 'verb' and words[count-1] != "to":
-            possible_subjects = findSubject(words,types,count,verb_and_subject)
+            possible_subjects = findSubject(words,types,count,verb_and_subject, True)
+            break
         count = count + 1
 
     for w in possible_subjects:
@@ -128,10 +197,17 @@ def interpret_assertion(sentance, memory, m_arr):
 
     ## assign subjects to their verbs
     for s in final_subjects:
-        memory[s] = {}
+        if s not in memory:
+            memory[s] = {}
         m_arr.append(s)
-        memory[s][verb_and_subject["verb"]] = verb_and_subject["subject"]
+        if verb_and_subject["verb"] in memory[s]:
+            for sub in verb_and_subject["subject"]:
+                memory[s][verb_and_subject["verb"]].append(sub)
+        else:
+            memory[s][verb_and_subject["verb"]] = verb_and_subject["subject"]
     memory["recent_subjects"] = final_subjects
+    if shouldPrint:
+        print(types)
 
 def isverb(word):
     result = False
@@ -148,6 +224,15 @@ def isverb(word):
 def ispreposition(word):
     result = False
     for item in arr_of_prep:
+        if word == item.lower():
+            result = True
+            break
+
+    return result
+
+def iscomparator(word):
+    result = False
+    for item in arr_of_comp:
         if word == item.lower():
             result = True
             break
@@ -190,9 +275,9 @@ def findSplit(tmp, possible_subjects):
     else:
         for sub in split_by_and:
             possible_subjects.append(sub.strip())
-def findSubject(words, types, count, verb_and_subject):
+def findSubject(words, types, count, verb_and_subject, override):
     possible_subjects = []
-    if types[count-1] != "":
+    if types[count-1] != "" and override:
         types[count] = ""
     else:
         tmp = words[:count]
@@ -209,29 +294,80 @@ def findSubject(words, types, count, verb_and_subject):
                     full_subject = full_subject + " " + w
                 cnt += 1
             possible_subjects.append(full_subject.lstrip())
-        if "and" in verb_seg:
-            verb_and_subject["verb"] = verb_seg[0]
-            split_by_comma = []
-            split_by_and = []
-            restructured_sent = ""
-            restructured_sent = verb_seg[1]
-            for wr in verb_seg[2:]:
-                restructured_sent = restructured_sent + " " + wr
-            split_by_comma = restructured_sent.split(",")
-            split_by_and = restructured_sent.split("and")
-            if len(split_by_comma) > 1:
-                for sub in split_by_comma:
-                    verb_and_subject["subject"].append(sub.replace(" and ", "").lstrip())
-            else:
-                for sub in split_by_and:
-                    verb_and_subject["subject"].append(sub.strip())
-        else:
-            verb_and_subject["verb"] = verb_seg[0]
-            sub = ""
-            for s in verb_seg[1:]:
-                if sub == "":
-                    sub = sub + s
-                else:
-                    sub = sub + " " + s
-            verb_and_subject["subject"].append(sub)
+        # print(verb_seg)
+        findAssignedSubject(verb_seg, verb_type_seg, verb_and_subject)
+
     return possible_subjects
+
+def findAssignedSubject(verb_seg,verb_type_seg, verb_and_subject):
+    if "and" in verb_seg:
+        splitPoint = 0
+        verb_phrase = ""
+        loop = 0
+        for thing in verb_seg:
+            if (verb_type_seg[loop] == "verb") and "," not in thing:
+                splitPoint = loop
+                verb_phrase = verb_phrase + " " + thing
+            else:
+                break
+            loop += 1
+        # print( splitPoint, verb_seg[splitPoint+1:], verb_and_subject["subject"], verb_phrase)
+        verb_and_subject["verb"] = verb_phrase.lstrip()
+        findSplit(verb_seg[splitPoint+1:], verb_and_subject["subject"])
+    else:
+        # print("verb_seg",verb_seg)
+        sub = ""
+        verb_phrase = ""
+        loop = 0
+        splitPoint = 0
+
+        for thing in verb_seg:
+            # print((verb_type_seg[loop] == "verb" or verb_type_seg[loop] == "comparator"),verb_type_seg[loop], thing) 
+            if (verb_type_seg[loop] == "verb" or verb_type_seg[loop] == "comparator" or (thing == "is" and loop < len(verb_seg) and verb_seg[loop + 1] == "a")):
+                splitPoint = loop
+                verb_phrase = verb_phrase + " " + thing
+                if verb_type_seg == "verb":
+                    verb_type_seg[loop:] = ["subject"] * (len(verb_type_seg) - loop)
+            else:
+                break
+            loop += 1
+        verb_and_subject["verb"] = verb_phrase.lstrip()
+        for s in verb_seg[splitPoint+1:]:
+            if sub == "":
+                sub = sub + s
+            else:
+                sub = sub + " " + s
+        verb_and_subject["subject"].append(sub)
+def getPronoun_refrence(recent_subjects, words):
+    result = ""
+    for pronoun in words.split():
+        pronoun = pronoun.lower()
+        should_replace = False
+        sent = ""
+        if pronoun == "he" or pronoun == "she" or pronoun == "it" and len(recent_subjects) > 0:
+            should_replace = True
+        elif pronoun == "they" and len(recent_subjects) > 0:
+            count = 0
+            should_replace = True
+            for s in recent_subjects:
+                if sent == "":
+                    sent = sent + s
+                elif count > 0 and count < len(recent_subjects):
+                    sent = sent + ", " + s
+                else:
+                    sent = sent + ", and " + s
+        else:
+            should_replace = False
+
+        if should_replace and sent != "":
+            result = result + " " + sent
+        elif should_replace:
+            result = result + " " + recent_subjects[0]
+        else:
+            result = result + " " + pronoun
+    result = result.lstrip()
+    return result
+
+
+
+
