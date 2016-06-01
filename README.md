@@ -1,4 +1,9 @@
 # layman-script
+
+<p align="center">
+<img src="screenshot.png" alt="layman-script" />
+</p>
+
 A sentence parser that identifies subjects and verbs and stores them into memory. Hopefully it will evolve to be smarter. But for now, that will be what it is. 
 
 Hopefully it will be a fully functioning English Interpreter.
