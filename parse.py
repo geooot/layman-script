@@ -88,7 +88,7 @@ def interpret_question(sentance, memory, m_arr):
                                 result.append(p)
             else:
                 print("ERR: Could not find \"" + subject + "\" in memory. Spelling is important!")
-    elif verb_and_subject["subject"] != [""] and (possible_subjects == [] or possible_subjects == [""]):
+    elif verb_and_subject["subject"] != [""] and (possible_subjects == [] or possible_subjects == [""]) and "is" not in sentance:
         for p in memory:
             if p != "recent_subjects":
                 for v in memory[p]:
@@ -124,16 +124,22 @@ def interpret_question(sentance, memory, m_arr):
                                         r = False
             result.append(r)
     else:
-        if question_type == "who":
-            # print("who is")
-            for person in possible_subjects:
-                result.append(memory[person])
+        NotDirectedQuestion = True
+        for x in verb_and_subject["subject"]:
+            if x in memory:
+                NotDirectedQuestion = False
+
+        if NotDirectedQuestion:
+            for person in memory:
+                if "is" in memory[person]:
+                    result.append(person)
         else:
-            for person in possible_subjects:
-                if "is a" in memory[person]:
-                    result.append([subject, memory[person]["is a"]])
+            for person in verb_and_subject["subject"]:
+                if "is" in memory[person]:
+                    result.append(memory[person]["is"])
                 else:
-                    result.append([subject, None])
+                    result.append(memory[person])
+
 
     if shouldPrint:
         print(types)

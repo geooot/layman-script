@@ -1,7 +1,7 @@
 import json
 
-f = open("wordbank/adverbs/adverbs.txt")
-indexes = open("wordbank/adverbs/index.json", "w")
+f = open("wordbank/verbs/verbs.txt")
+indexes = open("wordbank/verbs/index.json", "w")
 lines = f.read().splitlines()
 current_letter = ""
 payload = {}
