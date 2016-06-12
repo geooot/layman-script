@@ -5,7 +5,6 @@
 </p>
 
 A sentence parser that identifies subjects and verbs and stores them into memory.
-
 Hopefully it will be a fully functioning English Interpreter that evolves over time.
 
 But for now it just interprets subjects and verbs from a sentance and stores it.
