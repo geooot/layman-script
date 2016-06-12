@@ -1,0 +1,25 @@
+{
+  "endings":[".","?","!"],
+  "relations":[
+    {
+      "is a":["inherits"]
+    },
+    {
+      "has a":["contains","has"]
+    },
+  ],
+  "arithmetic":[
+    {
+      "add":["+"],
+    },
+    {
+      "subtract":["-"]
+    },
+    {
+      "multiply":["*"]
+    },
+    {
+      "divide":["/"]
+    }
+  ],
+}
