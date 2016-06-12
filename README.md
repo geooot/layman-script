@@ -4,13 +4,33 @@
 <img src="screenshot.png" alt="layman-script" />
 </p>
 
-A sentence parser that identifies subjects and verbs and stores them into memory. Hopefully it will evolve to be smarter. But for now, that will be what it is. 
+A sentence parser that identifies subjects and verbs and stores them into memory. Questions (who or what questions) can also be queried in order to get certain responses.
 
-Hopefully it will be a fully functioning English Interpreter.
-Well...probably not.
-I mean NLP is such a HUGE problem that it has it's own branch in Computer Science.
-
-But I guess we will see what happens!
+## Example
+layman-script works best with simple sentances
+```
+> George likes pie
+```
+Now you can ask...
+```
+> Who likes pie?
+'george'
+> Does George like pie?
+[True]
+> What does George like?
+['pie']
+```
+You can also include multiple subjects and/or verbs
+```
+> George, Dylan, and Jordan went to the movies
+> Who went to the movies?
+['george', 'dylan', 'jordan']
+```
+## How to install
+Install with pip
+```
+$ pip install git+https://github.com/geooot/layman-script.git
+```
 
 ## Dependencies:
  * Python 3 (For REPL otherwise python2 will work)
@@ -27,5 +47,5 @@ $ python3 main.py
 
 For file input:
 ```
-python3 main.py -f "pathtofile.txt"
+$ python3 main.py -f "pathtofile.txt"
 ```
