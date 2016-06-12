@@ -31,7 +31,7 @@ def repl():
 			print(get_memory())
 		else:
 			try:
-				print(interpret_message(inp))
+				print(interpret(inp))
 			except Exception as e:
 				print("ERR: an error has occured, memory might be affected ---")
 				print(traceback.format_exc())
@@ -50,7 +50,7 @@ def interpret_file(fp):
 	sentances = re.split(r'(?<=[^A-Z].[.?]) +(?=[A-Z])', file.read())
 	for s in sentances:
 		if s[0] != "#":
-			tmp = interpret_message(s)
+			tmp = interpret(s)
 			if tmp != "":
 				print(tmp)
 def get_memory():
@@ -72,7 +72,7 @@ def main():
 	if fp == "" and len(args) != 1:
 		print(len(args), args)
 		sentance = args[1]
-		print(interpret_message(sentance))
+		print(interpret(sentance))
 	elif fArg:
 		try:
 			interpret_file(fp)

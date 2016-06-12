@@ -4,15 +4,16 @@
 <img src="screenshot.png" alt="layman-script" />
 </p>
 
-A sentence parser that identifies subjects and verbs and stores them into memory.
-Hopefully it will be a fully functioning English Interpreter that evolves over time.
+A sentence parser that identifies subjects and verbs and stores them into memory. Hopefully it will evolve to be smarter. But for now, that will be what it is. 
 
-But for now it just interprets subjects and verbs from a sentance and stores it.
+Hopefully it will be a fully functioning English Interpreter.
+Well...probably not.
+I mean NLP is such a HUGE problem that it has it's own branch in Computer Science.
 
-It also accepts questions (who or what questions) that can be answered based on it's gained knowledge
+But I guess we will see what happens!
 
 ## Dependencies:
- * Python 3
+ * Python 3 (For REPL otherwise python2 will work)
 
 ## How to use:
 For REPL use:
