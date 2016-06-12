@@ -15,4 +15,5 @@ setup(name='layman-script',
       license='MIT',
       packages=find_packages(),
       zip_safe=False,
-      include_package_data=True)
+      include_package_data=True,
+      scripts=['bin/layman'])

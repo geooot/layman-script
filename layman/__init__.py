@@ -28,7 +28,7 @@ def repl():
 		if inp == "!q":
 			break
 		elif inp == "!json":
-			print(get_memory())
+			print(get_memory_as_str())
 		else:
 			try:
 				print(interpret(inp))
