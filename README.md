@@ -36,16 +36,14 @@ $ pip install git+https://github.com/geooot/layman-script.git
  * Python 3 (For REPL otherwise python2 will work)
 
 ## How to use:
-For REPL use:
+For the REPL use
 ```
-$ ./layman.sh
-```
-or 
-```
-$ python3 main.py
+$ layman
 ```
 
-For file input:
-```
-$ python3 main.py -f "pathtofile.txt"
-```
+Available arguments
+* `-f "filename.txt"` pass a file to be read
+
+Commands in the repl
+* `!q` exit repl
+* `!json` print memory JSON
