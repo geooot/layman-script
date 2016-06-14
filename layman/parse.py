@@ -293,7 +293,7 @@ class Parser(object):
             verb_seg = words[count:]
             verb_type_seg = types[count:]
             if "and" in tmp:
-                findSplit(tmp,possible_subjects)
+                self.findSplit(tmp,possible_subjects)
             else:
                 full_subject = ""
                 cnt = 0
