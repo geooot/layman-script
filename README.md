@@ -31,6 +31,10 @@ Install with pip
 ```
 $ pip install git+https://github.com/geooot/layman-script.git
 ```
+Note: root access may be necessary!
+```
+$ sudo pip install git+https://github.com/geooot/layman-script.git
+```
 
 ## Dependencies:
  * Python 3 (For REPL otherwise python2 will work)
